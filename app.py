@@ -7,9 +7,7 @@ from extensions import db
 
 
 def create_app():
-    """
-    Application factory that creates and configures the Flask app.
-    """
+
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
@@ -30,29 +28,18 @@ def create_app():
 
 
 def register_routes(app: Flask) -> None:
-    """
-    Register all HTTP routes on the given Flask application.
-    This keeps route definitions separate from the factory.
-    """
-
+    
     from models import User, Category, Budget, Expense
 
     @app.route("/")
     def index():
-        """
-        Simple dashboard showing a list of users to pick from.
-        For simplicity, we keep authentication out of scope and
-        let evaluator select a user from this list.
-        """
+       
         users = User.query.all()
         return render_template("index.html", users=users)
 
     @app.route("/user/create", methods=["GET", "POST"])
     def create_user():
-        """
-        Minimal user creation form. Only a name is required,
-        email is optional but useful for future email alerts.
-        """
+        
         if request.method == "POST":
             name = request.form.get("name", "").strip()
             email = request.form.get("email", "").strip()
@@ -71,19 +58,13 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/user/<int:user_id>/dashboard")
     def dashboard(user_id: int):
-        """
-        Dashboard for a single user.
-        Shows quick links to categories, budgets, expenses and reports.
-        """
+        
         user = User.query.get_or_404(user_id)
         return render_template("dashboard.html", user=user)
 
     @app.route("/user/<int:user_id>/delete", methods=["POST"])
     def delete_user(user_id: int):
-        """
-        Permanently delete a user and all related data.
-        Useful for cleaning up demo/test users.
-        """
+        
         user = User.query.get_or_404(user_id)
 
         
@@ -99,9 +80,7 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/user/<int:user_id>/categories", methods=["GET", "POST"])
     def manage_categories(user_id: int):
-        """
-        Create and list categories for a user.
-        """
+        
         user = User.query.get_or_404(user_id)
 
         if request.method == "POST":
@@ -124,10 +103,7 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/user/<int:user_id>/budgets", methods=["GET", "POST"])
     def manage_budgets(user_id: int):
-        """
-        Create or update budgets for a specific month and category.
-        This supports different budgets per month as required.
-        """
+        
         user = User.query.get_or_404(user_id)
         categories = Category.query.filter_by(user_id=user.id).all()
 
@@ -199,10 +175,7 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/user/<int:user_id>/expenses/new", methods=["GET", "POST"])
     def create_expense(user_id: int):
-        """
-        Log a new expense for a given user.
-        After saving, check budget usage and surface alerts on the UI.
-        """
+        
         user = User.query.get_or_404(user_id)
         categories = Category.query.filter_by(user_id=user.id).all()
 
@@ -287,9 +260,7 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/user/<int:user_id>/expenses")
     def list_expenses(user_id: int):
-        """
-        Simple listing of recent expenses for a user.
-        """
+        
         user = User.query.get_or_404(user_id)
         expenses = (
             Expense.query.filter_by(user_id=user.id)
@@ -307,9 +278,7 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/user/<int:user_id>/reports/monthly")
     def monthly_report(user_id: int):
-        """
-        Report: total spending per month and spending vs budget per category.
-        """
+        
         user = User.query.get_or_404(user_id)
 
         month_str = request.args.get("month")
@@ -385,9 +354,7 @@ def register_routes(app: Flask) -> None:
 
 
 def _next_month(d: date) -> date:
-    """
-    Return the first day of the month following the month that contains d.
-    """
+    
     if d.month == 12:
         return date(d.year + 1, 1, 1)
     return date(d.year, d.month + 1, 1)
