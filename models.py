@@ -6,9 +6,6 @@ from extensions import db
 class User(db.Model):
     """
     Represents a simple user of the expense tracker.
-
-    Authentication is intentionally omitted for the purposes of this
-    assignment. Evaluators can choose a user from the landing page.
     """
 
     id = db.Column(db.Integer, primary_key=True)
